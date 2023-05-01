@@ -1,7 +1,10 @@
 const readlineSync = require("readline-sync");
 
 // Wait for user's response.
-const userName = readlineSync.keyInPause("Press any key to start the game. ");
+const startGame = () => {
+  readlineSync.keyInPause("Press any key to start the game. ");
+};
+startGame();
 
 const placeShipsRandomly = () => {
   // Define the dimensions of the array
@@ -36,39 +39,85 @@ const placeShipsRandomly = () => {
   }
   return grid;
 };
-let ships = placeShipsRandomly();
-console.log(ships);
-const location = readlineSync.question(`Enter a location to strike ie 'A2'. `);
+let board = placeShipsRandomly();
+console.log(board);
+const location = () => {
+  return readlineSync.question(`Enter a location to strike i.e.: 'A2'. `);
+};
+let enteredLocation = location();
 
-const scanWaters = () => {
-  let result;
-  for (let row of ships) {
-    for (let col of row) {
-      if (col !== "Ship1" || col !== "Ship2") {
-        result = null;
-      }
-      result = col;
+let offBoard = [];
+let coordinatesAttacked = [];
+let shipsRemaining = 0;
+const scan = () => {
+  for (let coordinate of coordinatesAttacked) {
+    coordinate;
+  }
+};
+scan();
+
+const attack = (row, col) => {
+  if (offBoard.length <= 2) {
+    if (coordinatesAttacked.includes(enteredLocation)) {
+      console.log("You have already picked this location. Miss!");
+      location();
+    }
+
+    if (board[row][col] === null) {
+      console.log("You have missed!");
+      coordinatesAttacked.push(enteredLocation);
+      location();
+    } else {
+      offBoard.push(board[row][col]);
+      coordinatesAttacked.push(enteredLocation);
+      shipsRemaining--;
+      console.log(
+        `Hit. You have sunk a battleship. ${shipsRemaining} ship remaining.`
+      );
+      location();
     }
   }
-  return result;
+  if (offBoard.length === 2) {
+    let playAgain = !readlineSync.keyInYN(
+      'You have destroyed all battleships. Would you like to play again? Y/N"'
+    );
+    if (!playAgain) {
+      // Key that is not `Y` was pressed.
+      process.exit();
+    }
+    startGame();
+  }
 };
-switch (location) {
-  case "A1":
-    console.log(scanWaters([0][0]));
-  case "A2":
-    console.log(scanWaters([0][1]));
-  case "A3":
-    console.log(scanWaters([0][2]));
-  case "B1":
-    console.log(scanWaters([1][0]));
-  case "B2":
-    console.log(scanWaters([1][1]));
-  case "B3":
-    console.log(scanWaters([1][2]));
-  case "C1":
-    console.log(scanWaters([2][0]));
-  case "C2":
-    console.log(scanWaters([2][1]));
-  case "C3":
-    console.log(scanWaters([2][2]));
-}
+
+const scanWaters = () => {
+  switch (enteredLocation) {
+    case "A1":
+      attack(0, 0);
+      break;
+    case "A2":
+      attack(0, 1);
+      break;
+    case "A3":
+      attack(0, 2);
+      break;
+    case "B1":
+      attack(1, 0);
+      break;
+    case "B2":
+      attack(1, 1);
+      break;
+    case "B3":
+      attack(1, 2);
+      break;
+    case "C1":
+      attack(2, 0);
+      break;
+    case "C2":
+      attack(2, 1);
+      break;
+    case "C3":
+      attack(2, 2);
+      break;
+  }
+};
+scanWaters();
