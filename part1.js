@@ -52,26 +52,25 @@ const continueGame = () => {
 
   let shipsRemaining = 2;
 
-  const positionsAttacks = () => {
-    let result;
-    for (let coordinate of coordinatesAttacked) {
-      if (offBoard.length < 2) {
-        if (coordinate === enteredLocation) {
-          console.log("You have already picked this location. Miss!");
-          location();
-        }
-      }
-      result = coordinate;
+  const positionsAttacked = () => {
+    if (coordinatesAttacked.includes(enteredLocation)) {
+      console.log("You have already picked this location. Miss!");
+      enteredLocation = location(); // update enteredLocation with new input
+      positionsAttacked(); // positionsAttacks() is called to check if the location has already been attacked.
     }
-    result;
   };
-  let verify = positionsAttacks();
+  let verify = positionsAttacked();
 
   const attack = (row, col) => {
     if (board[row][col] === null) {
       console.log("You have missed!");
-      coordinatesAttacked.push(enteredLocation);
-      location();
+      if (coordinatesAttacked.includes(enteredLocation)) {
+        positionsAttacked();
+      } else {
+        coordinatesAttacked.push(enteredLocation);
+        enteredLocation = location();
+        scanWaters(); // scanWaters() is called to try again
+      }
     } else {
       offBoard.push(board[row][col]);
       coordinatesAttacked.push(enteredLocation);
@@ -79,7 +78,9 @@ const continueGame = () => {
       console.log(
         `Hit. You have sunk a battleship. ${shipsRemaining} ship remaining.`
       );
-      location();
+      enteredLocation = location();
+      scanWaters(); // scanWaters() is called to continue attack
+      console.log(board);
     }
   };
 
@@ -87,63 +88,63 @@ const continueGame = () => {
     switch (enteredLocation) {
       case "A1":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(0, 0);
         }
         break;
       case "A2":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(0, 1);
         }
         break;
       case "A3":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(0, 2);
         }
         break;
       case "B1":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(1, 0);
         }
         break;
       case "B2":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(1, 1);
         }
         break;
       case "B3":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(1, 2);
         }
         break;
       case "C1":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(2, 0);
         }
         break;
       case "C2":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(2, 1);
         }
         break;
       case "C3":
         if (verify === enteredLocation) {
-          positionsAttacks();
+          positionsAttacked();
         } else {
           attack(2, 2);
         }
