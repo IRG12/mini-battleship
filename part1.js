@@ -41,71 +41,135 @@ const placeShipsRandomly = () => {
 };
 let board = placeShipsRandomly();
 console.log(board);
-const location = () => {
-  return readlineSync.question(`Enter a location to strike i.e.: 'A2'. `);
-};
-let enteredLocation = location();
-
 let offBoard = [];
 let coordinatesAttacked = [];
+
+const continueGame = () => {
+  const location = () => {
+    return readlineSync.question(`Enter a location to strike i.e.: 'A2'. `);
+  };
+  let enteredLocation = location();
+
+  let shipsRemaining = 2;
+
+  const positionsAttacks = () => {
+    let result;
+    for (let coordinate of coordinatesAttacked) {
+      if (offBoard.length < 2) {
+        if (coordinate === enteredLocation) {
+          console.log("You have already picked this location. Miss!");
+          location();
+        }
+      }
+      result = coordinate;
+    }
+    result;
+  };
+  let verify = positionsAttacks();
+
+  const attack = (row, col) => {
+    if (board[row][col] === null) {
+      console.log("You have missed!");
+      coordinatesAttacked.push(enteredLocation);
+      location();
+    } else {
+      offBoard.push(board[row][col]);
+      coordinatesAttacked.push(enteredLocation);
+      shipsRemaining--;
+      console.log(
+        `Hit. You have sunk a battleship. ${shipsRemaining} ship remaining.`
+      );
+      location();
+    }
+  };
+
+  const scanWaters = () => {
+    switch (enteredLocation) {
+      case "A1":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(0, 0);
+        }
+        break;
+      case "A2":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(0, 1);
+        }
+        break;
+      case "A3":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(0, 2);
+        }
+        break;
+      case "B1":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(1, 0);
+        }
+        break;
+      case "B2":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(1, 1);
+        }
+        break;
+      case "B3":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(1, 2);
+        }
+        break;
+      case "C1":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(2, 0);
+        }
+        break;
+      case "C2":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(2, 1);
+        }
+        break;
+      case "C3":
+        if (verify === enteredLocation) {
+          positionsAttacks();
+        } else {
+          attack(2, 2);
+        }
+        break;
+    }
+  };
+  scanWaters();
+};
+
+const playAgain = () => {
+  let playAgain = !readlineSync.keyInYN(
+    'You have destroyed all battleships. Would you like to play again? Y/N"'
+  );
+  if (!playAgain) {
+    // Key that is not `Y` was pressed.
+    process.exit();
+  }
+  startGame();
+};
+
+if (offBoard.length === 2) {
+  playAgain();
+} else {
+  continueGame();
+}
 console.log(coordinatesAttacked);
-let shipsRemaining = 0;
-
-const prevAttacks = () => {
-  for (let coordinate of coordinatesAttacked) {
-    coordinate;
-  }
-};
-let prevCoordinates = scan();
-
-const attack = (row, col) => {
-  if (board[row][col] === null) {
-    console.log("You have missed!");
-    coordinatesAttacked.push(enteredLocation);
-    location();
-  } else {
-    offBoard.push(board[row][col]);
-    coordinatesAttacked.push(enteredLocation);
-    shipsRemaining--;
-    console.log(
-      `Hit. You have sunk a battleship. ${shipsRemaining} ship remaining.`
-    );
-    location();
-  }
-};
-
-const scanWaters = () => {
-  switch (enteredLocation) {
-    case "A1":
-      attack(0, 0);
-      break;
-    case "A2":
-      attack(0, 1);
-      break;
-    case "A3":
-      attack(0, 2);
-      break;
-    case "B1":
-      attack(1, 0);
-      break;
-    case "B2":
-      attack(1, 1);
-      break;
-    case "B3":
-      attack(1, 2);
-      break;
-    case "C1":
-      attack(2, 0);
-      break;
-    case "C2":
-      attack(2, 1);
-      break;
-    case "C3":
-      attack(2, 2);
-      break;
-  }
-};
-scanWaters();
 
 // if (offBoard.length <= 2) {
 //   if (prevCoordinates === enteredLocation) {
