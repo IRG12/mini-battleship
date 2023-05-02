@@ -65,6 +65,7 @@ const continueGame = () => {
     if (board[row][col] === null) {
       console.log("You have missed!");
       if (coordinatesAttacked.includes(enteredLocation)) {
+        enteredLocation = location();
         positionsAttacked();
       } else {
         coordinatesAttacked.push(enteredLocation);
