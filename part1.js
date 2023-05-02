@@ -48,44 +48,29 @@ let enteredLocation = location();
 
 let offBoard = [];
 let coordinatesAttacked = [];
+console.log(coordinatesAttacked);
 let shipsRemaining = 0;
-const scan = () => {
+
+const prevAttacks = () => {
   for (let coordinate of coordinatesAttacked) {
     coordinate;
   }
 };
-scan();
+let prevCoordinates = scan();
 
 const attack = (row, col) => {
-  if (offBoard.length <= 2) {
-    if (coordinatesAttacked.includes(enteredLocation)) {
-      console.log("You have already picked this location. Miss!");
-      location();
-    }
-
-    if (board[row][col] === null) {
-      console.log("You have missed!");
-      coordinatesAttacked.push(enteredLocation);
-      location();
-    } else {
-      offBoard.push(board[row][col]);
-      coordinatesAttacked.push(enteredLocation);
-      shipsRemaining--;
-      console.log(
-        `Hit. You have sunk a battleship. ${shipsRemaining} ship remaining.`
-      );
-      location();
-    }
-  }
-  if (offBoard.length === 2) {
-    let playAgain = !readlineSync.keyInYN(
-      'You have destroyed all battleships. Would you like to play again? Y/N"'
+  if (board[row][col] === null) {
+    console.log("You have missed!");
+    coordinatesAttacked.push(enteredLocation);
+    location();
+  } else {
+    offBoard.push(board[row][col]);
+    coordinatesAttacked.push(enteredLocation);
+    shipsRemaining--;
+    console.log(
+      `Hit. You have sunk a battleship. ${shipsRemaining} ship remaining.`
     );
-    if (!playAgain) {
-      // Key that is not `Y` was pressed.
-      process.exit();
-    }
-    startGame();
+    location();
   }
 };
 
@@ -121,3 +106,23 @@ const scanWaters = () => {
   }
 };
 scanWaters();
+
+// if (offBoard.length <= 2) {
+//   if (prevCoordinates === enteredLocation) {
+//     console.log("You have already picked this location. Miss!");
+//     location();
+//   }
+// }
+
+// ------------
+
+// if (offBoard.length === 2) {
+//   let playAgain = !readlineSync.keyInYN(
+//     'You have destroyed all battleships. Would you like to play again? Y/N"'
+//   );
+//   if (!playAgain) {
+//     // Key that is not `Y` was pressed.
+//     process.exit();
+//   }
+//   startGame();
+// }
