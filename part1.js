@@ -15,10 +15,10 @@ const placeShipsRandomly = () => {
   const grid = new Array(rows).fill(null).map(() => new Array(cols).fill(null));
 
   // Define an array of possible ship names
-  const shipNames = ["Ship1", "Ship2"];
 
   // Define an array to store which ships have already been placed
   const shipsPlaced = [];
+  const shipNames = ["Ship1", "Ship2"];
 
   // Loop through each ship name in the shipNames array
   for (let i = 0; i < shipNames.length; i++) {
@@ -57,24 +57,28 @@ const continueGame = () => {
       console.log("You have already picked this location. Miss!");
       enteredLocation = location(); // update enteredLocation with new input
       positionsAttacked(); // positionsAttacks() is called to check if the location has already been attacked.
+    } else {
+      console.log("You have missed! line 61");
+      coordinatesAttacked.push(enteredLocation);
+      continueGame();
     }
   };
   let verify = positionsAttacked();
 
   const attack = (row, col) => {
-    if (board[row][col] === null) {
-      console.log("You have missed!");
-      if (coordinatesAttacked.includes(enteredLocation)) {
-        enteredLocation = location();
-        positionsAttacked();
-      } else {
-        coordinatesAttacked.push(enteredLocation);
-        enteredLocation = location();
-        scanWaters(); // scanWaters() is called to try again
-      }
+    if (coordinatesAttacked.includes(enteredLocation)) {
+      enteredLocation = location();
+      positionsAttacked();
     } else {
+      coordinatesAttacked.push(enteredLocation);
+      console.log(coordinatesAttacked, "line 72");
+      enteredLocation = location();
+      scanWaters(); // scanWaters() is called to try again
+    }
+    if (board[row][col] !== null) {
       offBoard.push(board[row][col]);
       coordinatesAttacked.push(enteredLocation);
+      console.log(coordinatesAttacked, "line 79");
       shipsRemaining--;
       console.log(
         `Hit. You have sunk a battleship. ${shipsRemaining} ship remaining.`
@@ -82,8 +86,12 @@ const continueGame = () => {
       enteredLocation = location();
       scanWaters(); // scanWaters() is called to continue attack
       console.log(board);
+    } else {
+      positionsAttacked();
     }
   };
+
+  console.log(verify, "'verify' line 92");
 
   const scanWaters = () => {
     switch (enteredLocation) {
@@ -171,7 +179,7 @@ if (offBoard.length === 2) {
 } else {
   continueGame();
 }
-console.log(coordinatesAttacked);
+console.log(coordinatesAttacked, "line 179");
 
 // if (offBoard.length <= 2) {
 //   if (prevCoordinates === enteredLocation) {
