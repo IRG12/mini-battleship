@@ -47,78 +47,39 @@
 // let board = placeShipsRandomly();
 // console.log(board);
 
-const boardSize = 10; // size of the game board
-const shipLengths = [5, 4, 3, 3, 2]; // lengths of the ships to be placed
-const board = []; // the game board
+const boardSize = 10;
+const shipLengths = [5, 4, 3, 3, 2];
+const board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
+// console.log(board)
 
-// initialize the board with all 0's
-for (let i = 0; i < boardSize; i++) {
-  board[i] = [];
-  for (let j = 0; j < boardSize; j++) {
-    board[i][j] = 0;
-  }
-}
-
-// function to place ships on the board
 function placeShips() {
-  for (let i = 0; i < shipLengths.length; i++) {
-    let shipLength = shipLengths[i];
+  shipLengths.forEach((shipLength) => {
     let shipPlaced = false;
-
-    // keep trying to place the ship until it is placed successfully
     while (!shipPlaced) {
-      let direction = Math.floor(Math.random() * 2); // 0 for horizontal, 1 for vertical
-      let x, y;
-
-      if (direction === 0) {
-        // place the ship horizontally
-        x = Math.floor(Math.random() * (boardSize - shipLength + 1));
-        y = Math.floor(Math.random() * boardSize);
-
-        // check if the ship intersects with any other ship
-        let intersect = false;
-        for (let j = 0; j < shipLength; j++) {
-          if (board[x + j][y] === 1) {
-            intersect = true;
-            break;
-          }
-        }
-
-        // if the ship does not intersect, place it on the board
-        if (!intersect) {
-          for (let j = 0; j < shipLength; j++) {
-            board[x + j][y] = 1;
-          }
-          shipPlaced = true;
-        }
-      } else {
-        // place the ship vertically
-        x = Math.floor(Math.random() * boardSize);
-        y = Math.floor(Math.random() * (boardSize - shipLength + 1));
-
-        // check if the ship intersects with any other ship
-        let intersect = false;
-        for (let j = 0; j < shipLength; j++) {
-          if (board[x][y + j] === 1) {
-            intersect = true;
-            break;
-          }
-        }
-
-        // if the ship does not intersect, place it on the board
-        if (!intersect) {
-          for (let j = 0; j < shipLength; j++) {
-            board[x][y + j] = 1;
-          }
-          shipPlaced = true;
-        }
+      const direction = Math.floor(Math.random() * 2);
+      // console.log((boardSize - shipLength + 1))
+      const [x, y] = [
+        direction === 0
+          ? Math.floor(Math.random() * (boardSize - shipLength + 1))
+          : Math.floor(Math.random() * boardSize),
+        direction === 1
+          ? Math.floor(Math.random() * (boardSize - shipLength + 1))
+          : Math.floor(Math.random() * boardSize),
+      ];
+      // console.log([x,y])
+      const intersect = Array.from({ length: shipLength }, (_, j) =>
+        direction === 0 ? board[x + j][y] : board[x][y + j]
+      ).some((val) => val === 1);
+      console.log(intersect);
+      if (!intersect) {
+        Array.from({ length: shipLength }, (_, j) =>
+          direction === 0 ? (board[x + j][y] = 1) : (board[x][y + j] = 1)
+        );
+        shipPlaced = true;
       }
     }
-  }
+  });
 }
 
-// call the function to place the ships on the board
 placeShips();
-
-// print the board to the console
-console.log(board);
+// console.log(board);
