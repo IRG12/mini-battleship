@@ -83,3 +83,130 @@ function placeShips() {
 
 placeShips();
 // console.log(board);
+let coordinatesAttacked = [];
+let shipsRemaining = 5;
+
+// Wait for user's response.
+const startGame = () => {
+  readlineSync.keyInPause("Press any key to start the game. ");
+  const continueGame = () => {
+    let userInput = readlineSync.question(
+      `Enter a location to strike i.e.: 'A2'. `
+    );
+
+    function convertUserInput(input) {
+      const letters = "ABCDEFGHIJ";
+      const row = Number(input.slice(1)) - 1;
+      const col = letters.indexOf(input[0].toUpperCase());
+      return [row, col];
+    }
+    let enteredLocation = convertUserInput(userInput);
+
+    const positionsAttacked = () => {
+      if (coordinatesAttacked.includes(enteredLocation)) {
+        console.log("You have already picked this location. Miss!");
+        enteredLocation = location(); // update enteredLocation with new input
+        scanWaters(); // positionsAttacks() is called to check if the location has already been attacked.
+      } else {
+        console.log("You have missed! line 74");
+        coordinatesAttacked.push(enteredLocation);
+        enteredLocation = location(); // update enteredLocation with new input
+        scanWaters();
+      }
+    };
+
+    const attack = (row, col) => {
+      if (board[row][col] === "Ship1" || board[row][col] === "Ship2") {
+        coordinatesAttacked.push(enteredLocation);
+        console.log(coordinatesAttacked, "line 84");
+        shipsRemaining--;
+        console.log(
+          `Hit. You have sunk a battleship. ${shipsRemaining} ship remaining.`
+        );
+        if (shipsRemaining === 0) {
+          playAgain();
+        } else {
+          enteredLocation = location();
+          scanWaters(); // scanWaters() is called to continue attack
+          // console.log(board);
+        }
+      } else if (board[row][col] === null) {
+        positionsAttacked();
+      }
+    };
+
+    // console.log(verify, "'verify' line 92");
+
+    const scanWaters = () => {
+      // console.log(board, "line 89");
+      switch (enteredLocation) {
+        case "A1":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(0, 0);
+          }
+          break;
+        case "A2":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(0, 1);
+          }
+          break;
+        case "A3":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(0, 2);
+          }
+          break;
+        case "B1":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(1, 0);
+          }
+          break;
+        case "B2":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(1, 1);
+          }
+          break;
+        case "B3":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(1, 2);
+          }
+          break;
+        case "C1":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(2, 0);
+          }
+          break;
+        case "C2":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(2, 1);
+          }
+          break;
+        case "C3":
+          if (coordinatesAttacked.includes(enteredLocation)) {
+            positionsAttacked();
+          } else {
+            attack(2, 2);
+          }
+          break;
+      }
+    };
+    scanWaters();
+  };
+  continueGame();
+};
+startGame();
