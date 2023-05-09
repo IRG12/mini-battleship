@@ -72,10 +72,23 @@ function processGuess(x, y) {
 }
 
 function play() {
-  console.log("Press any key to start the game.");
-  readline.keyInPause();
-  console.log("Generating board...");
+  console.log("Welcome to Battleship!");
+  placeShips();
+  console.log(grid);
 
-  while (true) {}
+  while (hits < shipLengths.reduce((acc, curr) => acc + curr, 0)) {
+    let x = readlineSync.questionInt("Enter a row number (0-9): ");
+    let y = readlineSync.questionInt("Enter a column number (0-9): ");
+
+    if (x < 0 || x > 9 || y < 0 || y > 9) {
+      console.log("Invalid input. Please enter a number between 0 and 9.");
+      continue;
+    }
+
+    processGuess(x, y);
+  }
+
+  console.log("Thanks for playing!");
 }
+
 play();
