@@ -1,112 +1,96 @@
 const readlineSync = require("readline-sync");
 
-let boardSize = 10;
-let shipLengths = [5, 4, 3, 3, 2];
-let board = Array.from({ length: boardSize }, () =>
-  Array.from({ length: boardSize }, () => 0)
-);
-let shipLengthsHit = {};
-let shipsSunk = 0;
-
-function placeShip(shipLength) {
-  let shipPlaced = false;
-  while (!shipPlaced) {
-    const direction = Math.floor(Math.random() * 2); // 0 for horizontal, 1 for vertical
-    let x, y;
-    if (direction === 0) {
-      x = Math.floor(Math.random() * (boardSize - shipLength + 1));
-      y = Math.floor(Math.random() * boardSize);
-      if (
-        !board
-          .slice(x, x + shipLength)
-          .some((row) => row.slice(y, y + 1).some((cell) => cell === 1))
-      ) {
-        board.slice(x, x + shipLength).forEach((row) => (row[y] = 1));
-        shipPlaced = true;
-      }
-    } else {
-      x = Math.floor(Math.random() * boardSize);
-      y = Math.floor(Math.random() * (boardSize - shipLength + 1));
-      if (
-        !board
-          .slice(x, x + 1)
-          .some((row) =>
-            row.slice(y, y + shipLength).some((cell) => cell === 1)
-          )
-      ) {
-        board[x]
-          .slice(y, y + shipLength)
-          .forEach((_, i) => (board[x][y + i] = 1));
-        shipPlaced = true;
-      }
-    }
-  }
-}
+const boardSize = 10;
+const shipLengths = [2, 3, 3, 4, 5];
+const board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
+let numShips = shipLengths.length;
+const letterToNum = {
+  A: 0,
+  B: 1,
+  C: 2,
+  D: 3,
+  E: 4,
+  F: 5,
+  G: 6,
+  H: 7,
+  I: 8,
+  J: 9,
+};
 
 function placeShips() {
-  shipLengths.forEach(placeShip);
-}
-placeShips();
-
-const playAgain = () => {
-  let playAgain = readlineSync.keyInYN(
-    'You have destroyed all battleships. Would you like to play again? Y/N"'
-  );
-  if (!playAgain) {
-    // Key that is not `Y` was pressed.
-    process.exit();
-  }
-  boardSize = 10;
-  shipLengths = [5, 4, 3, 3, 2];
-  board = Array.from({ length: boardSize }, () =>
-    Array.from({ length: boardSize }, () => 0)
-  );
-  shipLengthsHit = {};
-  shipsSunk = 0;
-  startGame();
-};
-
-const startGame = () => {
-  readlineSync.keyInPause("Press any key to start the game. ");
-  const continueGame = () => {
-    const userGuess = () => {
-      return readlineSync.question(`Enter a location to strike i.e.: 'A2'. `);
-    };
-    let guessedLocation = userGuess();
-
-    function convertUserInput(input) {
-      const letters = "ABCDEFGHIJ";
-      const row = Number(input.slice(1)) - 1;
-      const col = letters.indexOf(input[0].toUpperCase());
-      return [row, col];
-    }
-    let convertedGuess = convertUserInput(guessedLocation);
-    function fire(x, y) {
-      if (board[x][y] === 0) {
-        console.log("You missed!");
-      } else if (board[x][y] === -1) {
-        console.log("You have already picked this location. Miss!");
-        guessedLocation = userGuess(); // // update guessedLocation with new input
-        fire(...convertUserInput(guessedLocation)); // fire on new position
-      } else if (board[x][y] > 0) {
-        const shipId = board[x][y];
-        shipLengthsHit[shipId] = (shipLengthsHit[shipId] || 0) + 1;
-        board[x][y] = -1;
-        const shipLength = shipLengths[shipId - 1];
-        if (shipLengthsHit[shipId] === shipLength) {
-          console.log(`You sunk a ship of length ${shipLength}!`);
-          shipsSunk++;
-          if (shipsSunk === shipLengths.length) {
-            console.log("Congratulations! You have sunk all the battleships!");
-            playAgain();
-          }
-        } else {
-          console.log(`You hit a ship of length ${shipLength}!`);
-        }
+  shipLengths.forEach((shipLength) => {
+    let shipPlaced = false;
+    while (!shipPlaced) {
+      const direction = Math.floor(Math.random() * 2);
+      const [x, y] = [
+        direction === 0
+          ? Math.floor(Math.random() * (boardSize - shipLength + 1))
+          : Math.floor(Math.random() * boardSize),
+        direction === 1
+          ? Math.floor(Math.random() * (boardSize - shipLength + 1))
+          : Math.floor(Math.random() * boardSize),
+      ];
+      const intersect = Array.from({ length: shipLength }, (_, j) =>
+        direction === 0 ? board[x + j][y] : board[x][y + j]
+      ).some((val) => val === 1);
+      if (!intersect) {
+        Array.from({ length: shipLength }, (_, j) =>
+          direction === 0 ? (board[x + j][y] = 1) : (board[x][y + j] = 1)
+        );
+        shipPlaced = true;
       }
     }
-    fire(convertedGuess);
-  };
-  continueGame();
-};
-startGame();
+  });
+}
+
+placeShips();
+
+console.log("Press any key to start the game.");
+readlineSync.keyIn();
+
+let hits = 0;
+let guesses = new Set();
+
+while (numShips > 0) {
+  console.log(
+    board
+      .map((row) => row.map((val) => (val === 0 ? "-" : "X")).join(" "))
+      .join("\n")
+  );
+  const guess = readlineSync.question(
+    "Enter a location to strike, e.g. 'A2': "
+  );
+  const [x, y] = [letterToNum[guess[0]], Number(guess[1]) - 1];
+  if (guesses.has(`${x},${y}`)) {
+    console.log("You have already picked this location. Miss!");
+  } else if (board[x][y] === 1) {
+    console.log("Hit!");
+    board[x][y] = 2;
+    hits++;
+    numShips--;
+  } else {
+    console.log("You have missed!");
+    guesses.add(`${x},${y}`);
+  }
+}
+
+console.log(
+  board
+    .map((row) =>
+      row.map((val) => (val === 0 ? "-" : val === 1 ? "X" : "O")).join(" ")
+    )
+    .join("\n")
+);
+const playAgain = readlineSync.keyInYNStrict(
+  "You have destroyed all battleships. Would you like to play again?"
+);
+if (playAgain) {
+  // Reset the board and guesses
+  board.forEach((row) => row.fill(0));
+  guesses.clear();
+  placeShips();
+  numShips = shipLengths.length;
+  hits = 0;
+} else {
+  console.log("Thanks for playing!");
+}
