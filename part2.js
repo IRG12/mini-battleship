@@ -376,11 +376,11 @@ const SHIP_LENGTHS = [5, 4, 3, 3, 2];
 const SHIP_SYMBOL = "X";
 const HIT_SYMBOL = "O";
 const MISS_SYMBOL = "-";
-let totalShips = SHIP_LENGTHS.length;
+let totalShips = SHIP_LENGTHS.length - 1;
 
 // Generate an empty grid
+let grid = [];
 function generateGrid() {
-  let grid = [];
   for (let i = 0; i < GRID_SIZE; i++) {
     let row = [];
     for (let j = 0; j < GRID_SIZE; j++) {
@@ -423,9 +423,9 @@ function addShips(grid) {
         }
       }
       // Check if the new ship location intersects with any of the existing ships
+      let intersect = false;
       for (let j = 0; j < shipLocations.length; j++) {
         let loc = shipLocations[j];
-        let intersect = false;
         if (orientation === 0) {
           // horizontal orientation
           if (
@@ -498,14 +498,26 @@ function displayGrid(grid) {
   }
 }
 
+let numShipsSunk = 0;
+const playAgain = () => {
+  let playAgain = readlineSync.keyInYN(
+    'You have destroyed all battleships. Would you like to play again? Y/N"'
+  );
+  if (!playAgain) {
+    // Key that is not `Y` was pressed.
+    process.exit();
+  }
+  playGame();
+};
+
 function playGame() {
   let grid = generateGrid();
   let shipLocations = addShips(grid);
   console.log("Welcome to Battleship!");
   console.log("There are " + totalShips + " ships on the board.");
-  let numShipsSunk = 0;
   while (numShipsSunk < totalShips) {
     displayGrid(grid);
+    // console.table(grid);
     let guess = readlineSync.question("Enter your guess (e.g. A1): ");
     let row = guess[1] - 1;
     let col = guess.charCodeAt(0) - 65;
@@ -514,21 +526,42 @@ function playGame() {
       grid[row][col] = 6;
     } else if (grid[row][col] > 0 && grid[row][col] < 6) {
       console.log("Hit!");
-      let shipIndex = grid[row][col] - 1;
+      console.table(shipLocations);
+      console.log(
+        `${grid[row][col]} + ${grid.indexOf([row][col])} = ${
+          grid.indexOf([row][col]) + grid[row][col]
+        }`
+      );
+
+      let shipIndex = grid[row][col];
       let ship = shipLocations[shipIndex];
-      ship.hits++;
-      if (ship.hits === grid[row][col]) {
-        console.log(`Sunk! ${totalShips - numShipsSunk} remaining`);
-        ship.sunk = true;
-        numShipsSunk++;
+      while (ship.hits <= shipIndex) {
+        if (ship.hits === shipIndex && !ship.sunk) {
+          console.log(ship.hits);
+          console.log(`Sunk! ${totalShips - numShipsSunk} remaining`);
+          ship.sunk = true;
+          numShipsSunk++;
+        }
+        if (ship.hits === shipIndex) {
+          break;
+        }
+
+        ship.hits++;
       }
+
+      console.table(shipLocations);
       grid[row][col] = 6;
     } else if (grid[row][col] === 6) {
       console.log("You already hit that spot!");
     }
   }
-  console.log("Congratulations, you sank all the ships!");
+  if (numShipsSunk === 5) {
+    playAgain();
+  }
+  // console.log("Congratulations, you sank all the ships!");
 }
 
 // Start the game
 playGame();
+
+// It's a battleship terminal game. 1) When I attack the tenth row, the code attacks the first row. 2) when the second ship with a length of three is sunk, the object is not uniquely tracking this and then updating numShipsSunk to player 3) Game ends when numShipsSunk count === 1. I don't want that. I want the game to end when numShipsSunk === 0
