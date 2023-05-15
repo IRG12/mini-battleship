@@ -376,7 +376,7 @@ const SHIP_LENGTHS = [5, 4, 3, 3, 2];
 const SHIP_SYMBOL = "X";
 const HIT_SYMBOL = "O";
 const MISS_SYMBOL = "-";
-let totalShips = SHIP_LENGTHS.length - 1;
+let totalShips = SHIP_LENGTHS.length;
 
 // Generate an empty grid
 let grid = [];
@@ -452,6 +452,7 @@ function addShips(grid) {
       }
     }
     shipLocations.push({
+      id: SHIP_LENGTHS[i],
       row: row,
       col: col,
       length: shipLength,
@@ -526,32 +527,32 @@ function playGame() {
       grid[row][col] = 6;
     } else if (grid[row][col] > 0 && grid[row][col] < 6) {
       console.log("Hit!");
-      console.table(shipLocations);
-      console.log(
-        `${grid[row][col]} + ${grid.indexOf([row][col])} = ${
-          grid.indexOf([row][col]) + grid[row][col]
-        }`
+      console.log(grid[row][col], "line 530");
+      let lengthOfThree = shipLocations.find(
+        (shipId) =>
+          // console.log(shipId, " line 531")
+          grid[row][col] === shipId.length
       );
+      console.log(lengthOfThree, "line 535");
+      for (let ship of shipLocations) {
+        // console.log(ship);
 
-      let shipIndex = grid[row][col];
-      let ship = shipLocations[shipIndex];
-      while (ship.hits <= shipIndex) {
-        if (ship.hits === shipIndex && !ship.sunk) {
+        if (ship.id === grid[row][col]) {
+          console.log(lengthOfThree === ship.id, "line 540");
+          ship.hits++;
+        }
+        if (ship.hits === ship.id) {
           console.log(ship.hits);
           console.log(`Sunk! ${totalShips - numShipsSunk} remaining`);
           ship.sunk = true;
           numShipsSunk++;
         }
-        if (ship.hits === shipIndex) {
-          break;
-        }
-
-        ship.hits++;
       }
 
-      console.table(shipLocations);
       grid[row][col] = 6;
+      console.table(shipLocations);
     } else if (grid[row][col] === 6) {
+      console.log(grid[row][col]);
       console.log("You already hit that spot!");
     }
   }
