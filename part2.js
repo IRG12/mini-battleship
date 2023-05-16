@@ -391,8 +391,8 @@ function generateGrid() {
   return grid;
 }
 
+let shipLocations = [];
 function addShips(grid) {
-  let shipLocations = [];
   for (let i = 0; i < SHIP_LENGTHS.length; i++) {
     let shipLength = SHIP_LENGTHS[i];
     let orientation = Math.floor(Math.random() * 2);
@@ -452,13 +452,11 @@ function addShips(grid) {
       }
     }
     shipLocations.push({
-      id: SHIP_LENGTHS[i],
       row: row,
       col: col,
       length: shipLength,
       orientation: orientation,
       hits: 0,
-      sunk: false,
     });
     if (orientation === 0) {
       // horizontal orientation
@@ -500,6 +498,12 @@ function displayGrid(grid) {
 }
 
 let numShipsSunk = 0;
+
+const resetGame = () => {
+  numShipsSunk = 0;
+  grid = [];
+  shipLocations = [];
+};
 const playAgain = () => {
   let playAgain = readlineSync.keyInYN(
     'You have destroyed all battleships. Would you like to play again? Y/N"'
@@ -508,6 +512,7 @@ const playAgain = () => {
     // Key that is not `Y` was pressed.
     process.exit();
   }
+  resetGame();
   playGame();
 };
 
@@ -528,25 +533,25 @@ function playGame() {
     } else if (grid[row][col] > 0 && grid[row][col] < 6) {
       console.log("Hit!");
       console.log(grid[row][col], "line 530");
-      let lengthOfThree = shipLocations.find(
+      let ship = shipLocations.find(
         (shipId) =>
           // console.log(shipId, " line 531")
           grid[row][col] === shipId.length
       );
-      console.log(lengthOfThree, "line 535");
-      for (let ship of shipLocations) {
-        // console.log(ship);
+      console.log(ship, "line 535");
+      // console.log(ship);
 
-        if (ship.id === grid[row][col]) {
-          console.log(lengthOfThree === ship.id, "line 540");
-          ship.hits++;
-        }
-        if (ship.hits === ship.id) {
-          console.log(ship.hits);
-          console.log(`Sunk! ${totalShips - numShipsSunk} remaining`);
-          ship.sunk = true;
-          numShipsSunk++;
-        }
+      if (ship.length === grid[row][col]) {
+        console.log(ship === ship.length, "line 540");
+        ship.hits++;
+      }
+      if (ship.hits === ship.length) {
+        console.log(ship.hits);
+        ship = shipLocations.splice(shipLocations.indexOf(ship), 1);
+        ship = null;
+        numShipsSunk++;
+        console.log(`Sunk! ${totalShips - numShipsSunk} remaining`);
+        console.table(shipLocations);
       }
 
       grid[row][col] = 6;
