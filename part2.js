@@ -524,35 +524,37 @@ function playGame() {
   let shipLocations = addShips(grid);
   console.log("Welcome to Battleship!");
   console.log("There are " + totalShips + " ships on the board.");
+  const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
   while (numShipsSunk < totalShips) {
     displayGrid(grid);
     // console.table(grid);
     let guess = readlineSync.question("Enter your guess (e.g. A1): ");
-    let row = guess[1] - 1;
-    console.log(row, "line 529");
-    let col = parseInt(guess.substring(1)) - 1;
+    let letter = guess.charAt(0).toUpperCase();
+    let col = letters.indexOf(letter);
+    let row = parseInt(guess.substring(1)) - 1;
     console.log(col, "line 534");
     // Check if the entered column is within the valid range
     if (col < 0 || col >= GRID_SIZE) {
       console.log("Invalid column. Please enter a valid column (1-10).");
       continue; // Go back to the beginning of the while loop
     }
+    console.log(console.log(grid[row][col], "line 540"));
     if (grid[row][col] === 0) {
       console.log("Miss!");
       grid[row][col] = -1;
     } else if (grid[row][col] > 0) {
       console.log("Hit!");
-      console.log(grid[row][col], "line 530");
+      console.log(grid[row][col], "line 545");
       let ship = shipLocations.find(
         (shipId) =>
           // console.log(shipId, " line 531")
           grid[row][col] === shipId.length
       );
-      console.log(ship, "line 535");
+      console.log(ship, "line 551");
       // console.log(ship);
 
-      if (ship.length === grid[row][col]) {
-        console.log(ship === ship.length, "line 540");
+      if (grid[row][col] === ship.length) {
+        console.log(ship === ship.length, "line 555");
         ship.hits++;
         if (ship.hits === ship.length) {
           console.log(ship.hits);
