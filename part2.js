@@ -375,7 +375,8 @@ const GRID_SIZE = 10;
 const SHIP_LENGTHS = [5, 4, 3, 3, 2];
 const SHIP_SYMBOL = "X";
 const HIT_SYMBOL = "O";
-const MISS_SYMBOL = "-";
+const MISS_SYMBOL = "M";
+const EMPTY_SYMBOL = "-";
 let totalShips = SHIP_LENGTHS.length;
 
 // Generate an empty grid
@@ -486,10 +487,12 @@ function displayGrid(grid) {
     }
     for (let j = 0; j < GRID_SIZE; j++) {
       if (grid[i][j] === 0) {
+        rowString += " " + EMPTY_SYMBOL;
+      } else if (grid[i][j] === -1) {
         rowString += " " + MISS_SYMBOL;
-      } else if (grid[i][j] > 0 && grid[i][j] < 6) {
+      } else if (grid[i][j] > 0) {
         rowString += " " + SHIP_SYMBOL;
-      } else if (grid[i][j] === 6) {
+      } else if (grid[i][j] === HIT_SYMBOL) {
         rowString += " " + HIT_SYMBOL;
       }
     }
@@ -526,11 +529,18 @@ function playGame() {
     // console.table(grid);
     let guess = readlineSync.question("Enter your guess (e.g. A1): ");
     let row = guess[1] - 1;
-    let col = guess.charCodeAt(0) - 65;
+    console.log(row, "line 529");
+    let col = parseInt(guess.substring(1)) - 1;
+    console.log(col, "line 534");
+    // Check if the entered column is within the valid range
+    if (col < 0 || col >= GRID_SIZE) {
+      console.log("Invalid column. Please enter a valid column (1-10).");
+      continue; // Go back to the beginning of the while loop
+    }
     if (grid[row][col] === 0) {
       console.log("Miss!");
-      grid[row][col] = 6;
-    } else if (grid[row][col] > 0 && grid[row][col] < 6) {
+      grid[row][col] = -1;
+    } else if (grid[row][col] > 0) {
       console.log("Hit!");
       console.log(grid[row][col], "line 530");
       let ship = shipLocations.find(
@@ -544,19 +554,18 @@ function playGame() {
       if (ship.length === grid[row][col]) {
         console.log(ship === ship.length, "line 540");
         ship.hits++;
-      }
-      if (ship.hits === ship.length) {
-        console.log(ship.hits);
-        ship = shipLocations.splice(shipLocations.indexOf(ship), 1);
-        ship = null;
-        numShipsSunk++;
-        console.log(`Sunk! ${totalShips - numShipsSunk} remaining`);
-        console.table(shipLocations);
+        if (ship.hits === ship.length) {
+          console.log(ship.hits);
+          shipLocations.splice(shipLocations.indexOf(ship), 1); // deletes object
+          numShipsSunk++;
+          console.log(`Sunk! ${totalShips - numShipsSunk} remaining`);
+          console.table(shipLocations);
+        }
       }
 
-      grid[row][col] = 6;
+      grid[row][col] = HIT_SYMBOL;
       console.table(shipLocations);
-    } else if (grid[row][col] === 6) {
+    } else if (grid[row][col] === HIT_SYMBOL) {
       console.log(grid[row][col]);
       console.log("You already hit that spot!");
     }
